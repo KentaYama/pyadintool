@@ -1,7 +1,7 @@
 ###########################
 #  adintool-like options
 ###########################
-in: mic
+in: file
 out: file # adinnet
 filename: result/%Y%m%d_%R.wav
 startid: 0

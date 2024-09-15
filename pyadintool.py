@@ -141,6 +141,7 @@ def setup_source(config):
                     logger.info(f'[ERROR]: no such deviceid {deviceid}:{devid2name[deviceid]}.')
                     quit()
 
+        print(f'[LOG]: SOURCE: use device {deviceid}:{devid2name}')
         logger.info(f'[LOG]: SOURCE: use device {deviceid}:{devid2name[deviceid]}')
         source = lib.io.SoundDeviceSource(deviceid, config['freq'], config['nch'])
 
@@ -179,7 +180,7 @@ def setup_sink(config):
         if filename is None:
             logger.info(f'[ERROR]: there is no parameter "filename"')
             quit()
-        
+
         sink = lib.io.SegmentedAudioSinkFile(config['filename'],
                                              config['startid'],
                                              config['freq'], config['nch'])
@@ -209,7 +210,7 @@ def setup_tagger(config):
     config: dict
     """
     logger = logging.getLogger(__name__)
-    
+
     import importlib
     package = importlib.import_module(config['package'])
     classname = getattr(package, config['class'])
@@ -225,14 +226,14 @@ def setup_postproc(config):
     config: dict
     """
     logger = logging.getLogger(__name__)
-    
+
     import importlib
     package = importlib.import_module(config['package'])
     classname = getattr(package, config['class'])
     postproc = classname(**config['params'])
 
     logger.info(f'[LOG]: PROCESSOR: load postproc: {config["package"]}.{config["class"]}')
-    
+
     return postproc
 
 
@@ -255,12 +256,12 @@ def run_realtime(config):
     """
     logger = logging.getLogger(__name__)
     logger.info(f'[LOG]: setup pipelines')
-    
+
     # io (source and sinks)
     source = setup_source(config)
     sinks, indices = setup_sink(config)
     pipeline = lib.pipeline.Pipeline(source, sinks=sinks, indices=indices)
-    
+
     # processors
     tagger = setup_tagger(config['tagger'])
     pipeline.add(tagger)
@@ -268,7 +269,7 @@ def run_realtime(config):
     postproc = setup_postproc(config['postproc'])
     if postproc is not None:
         pipeline.add(postproc)
-    
+
     #
     if config['enable_plot'] is True:
         plotwin = setup_plotwin(config, pipeline)
@@ -300,7 +301,7 @@ def run_proclist(config):
     if infilelist is None or tsfilelist is None:
         logger.info(f'[ERROR]: --inlist and --tslist are required for list processing')
         quit()
-    
+
     # processors
     tagger = setup_tagger(config['tagger'])
     postproc = setup_postproc(config['postproc'])
@@ -315,10 +316,10 @@ def run_proclist(config):
         for infile, tsfile in zip(inlist, tslist):
             infile = infile.strip()
             tsfile = tsfile.strip()
-            
+
             config['infile'] = infile
             config['timestampfile'] = tsfile
-            
+
             # io (source and sinks)
             source = setup_source(config)
             sinks, indices = setup_sink(config)
@@ -363,7 +364,7 @@ def main():
     lib.io.setup_logger(config['enable_logsave'], config['logfilefmt'])
     logger = logging.getLogger(__name__)
     logger.info(f'[LOG]: {config}')
-    
+
     #####################
     #
     #####################
